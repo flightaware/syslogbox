@@ -1,0 +1,33 @@
+
+
+
+get a message
+
+eval a bunch of registered procs against it
+
+keep track of stuff and counts with speedtables
+
+
+it's like a fancy COND from lisp
+
+
+so basically
+
+register one or more procs to be called from the syslog proc.
+
+each of these gets called regardless of the return from any other.
+
+this way it can do totally independent stuff and we run test stuff.
+
+registerable multiple proc inteface
+===================================
+
+so one thing is register and deregister a proc to get called.
+
+it works like after.  you register a proc and you get back an ID.
+
+you can pass the ID to deregister the proc or you can, also as with
+after, cancel the proc by name.
+
+
+
