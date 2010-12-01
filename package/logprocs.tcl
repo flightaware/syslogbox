@@ -4,9 +4,21 @@
 
 namespace eval ::logprocs {
     variable procList
+    variable debug
 
     set procList [list]
+    set debug 1
 
+#
+# debug - issue a debug message (if enabled)
+#
+proc debug {message} {
+    variable debug
+
+    if {$debug} {
+        puts stderr "[lindex [info level [expr [info level] - 1]] 0]: $debug"
+    }
+}
 #
 # register - register a proc in the syslog callout list
 #
@@ -19,6 +31,8 @@ proc register {proc} {
         return
     }
 
+    lappend procList $proc
+    return
 }
 
 #
@@ -46,6 +60,7 @@ proc invoke {_message} {
     upvar $_message message
 
     foreach proc $procList {
+        debug "::logprocs::invoke: invoking proc $proc"
         if {[catch {$proc message} catchResult] == 1} {
 	    catch {bgerror "got '$catchResult' executing '$proc message'"}
 	}
