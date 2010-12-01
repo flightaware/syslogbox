@@ -16,7 +16,7 @@ proc debug {message} {
     variable debug
 
     if {$debug} {
-        puts stderr "[lindex [info level [expr [info level] - 1]] 0]: $debug"
+        puts stderr "[lindex [info level [expr [info level] - 1]] 0]: $message"
     }
 }
 #
@@ -60,7 +60,7 @@ proc invoke {_message} {
     upvar $_message message
 
     foreach proc $procList {
-        debug "::logprocs::invoke: invoking proc $proc"
+        debug "invoking proc $proc"
         if {[catch {$proc message} catchResult] == 1} {
 	    catch {bgerror "got '$catchResult' executing '$proc message'"}
 	}
