@@ -1,23 +1,5 @@
 
-
-
-get a message
-
-eval a bunch of registered procs against it
-
-keep track of stuff and counts with speedtables
-
-
-it's like a fancy COND from lisp
-
-
-so basically
-
-register one or more procs to be called from the syslog proc.
-
-each of these gets called regardless of the return from any other.
-
-this way it can do totally independent stuff and we run test stuff.
+at the top level, we have a
 
 registerable multiple proc inteface
 ===================================
@@ -30,4 +12,20 @@ you can pass the ID to deregister the proc or you can, also as with
 after, cancel the proc by name.
 
 
+underneath it, we have zero or more logboxes.
+
+logboxes
+========
+
+logboxes are rule sets and actions to take when rules match.  The action
+is usually to run Tcl code.  the results of the tcl code tell the thing
+if it should go on or whatever.
+
+it is easy to reload logboxes or add new rules to them, etc
+
+definitely want to keep counts and have debugging enable-able.
+
+probably use speedtables
+
+it's sort of like a fancy COND from lisp
 
