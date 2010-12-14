@@ -53,8 +53,11 @@ proc accept_connection {sock ip port} {
     puts $sock "syslogterp 1.0"
 }
 
+#
+# syslog - this is the routine called by tclsyslogd's altered syslogd code
+#
 proc syslog {_array} {
-    log "syslog"
+    #log "syslog"
     variable sockets
 
     upvar $_array array
@@ -63,10 +66,10 @@ proc syslog {_array} {
 
     set command "unset -nocomplain ::message; array set ::message [list [array get array]]; syslog ::message"
 
-    log "syslog command is '$command'"
+    #log "syslog command is '$command'"
 
     foreach sock [array names sockets] {
-        log "sending command to sock $sock"
+        #log "sending command to sock $sock"
         if {[catch {$sockets($sock) eval $command} catchResult] == 1} {
 	    log "got '$catchResult' executing command in sock $sock"
 	}
@@ -93,10 +96,11 @@ proc remote_disconnect {sock} {
 }
 
 #
-# remote_disconnect - proc invoked by "quit" in the slave to disconnect
+# slave_puts - proc that gets aliased into the slave that gives it a
+#  rudimentary puts (puts with no channel name or extra arguments)
 #
 proc slave_puts {sock line} {
-    log "slave_puts $sock $line"
+    #log "slave_puts $sock $line"
     puts $sock $line
 }
 
@@ -111,6 +115,10 @@ proc handle_eof {sock} {
     disconnect $sock
 }
 
+#
+# disconnect - disconnect the socket by closing it, deleting the slave
+#   interpreter we made for it, and forgetting of its existence
+#
 proc disconnect {sock} {
     variable sockets
 
@@ -142,7 +150,9 @@ proc remote_receive {sock} {
     log "got '$line' from $sock"
     if {[catch {$sockets($sock) eval $line} catchResult] == 1} {
         log [list e $catchResult $::errorInfo]
-        puts $sock [list e $catchResult $::errorInfo]
+	# don't leak errorInfo to normals 
+        #puts $sock [list e $catchResult $::errorInfo]
+        puts $sock [list e $catchResult]
     } else {
         # if there is no socket, they disconnected
         if {![info exists sockets($sock)]} {

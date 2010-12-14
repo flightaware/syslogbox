@@ -14,6 +14,10 @@ proc syslog {_message} {
         return ""
     }
 
+    if {![check_for_requires message]} {
+        return ""
+    }
+
     puts [list l [array get message]]
 }
 
@@ -51,16 +55,55 @@ proc check_for_drops {_message} {
     return 0
 }
 
-proc save {} {
-    variable dropArray
+proc require {keyword args} {
+    variable requireArray
 
-    puts "load [array get dropArray]"
+    foreach pattern $args {
+        lappend requireArray($keyword) $pattern
+    }
 }
 
-proc load {args} {
-    variable dropArray
+proc check_for_requires {_message} {
+    variable requireArray
+    upvar $_message message
 
-    foreach "key value" $args {
-        set dropArray($key) $value
+    # get out quickly if there's nothing to do
+    if {[array size requireArray] == 0} {
+        return 1
     }
+
+    foreach keyword [array names message] {
+        if {![info exists requireArray($keyword)]} {
+	    continue
+	}
+
+	foreach pattern $requireArray($keyword) {
+	    if {![string match $pattern $message($keyword)]} {
+	        return 0
+	    }
+	}
+    }
+    return 1
+}
+
+proc save {} {
+    variable dropArray
+    variable requireArray
+
+    puts [list load [array get requireArray] [array get dropArray]]
+}
+
+proc load {requireArrayData dropArrayData } {
+    variable dropArray
+    variable requireArray
+
+    array set requireArray $requireArrayData
+    array set dropArray $dropArrayData
+}
+
+proc reset {} {
+    variable dropArray
+    variable requireArray
+
+    unset -nocomplain dropArray requireArray
 }

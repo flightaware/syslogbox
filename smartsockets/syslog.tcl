@@ -3,14 +3,12 @@
 #
 #
 
-puts "WOOF"
-
 source sockinterp.tcl
 
 proc syslog {_message} {
     upvar $_message message
 
-    parray message
+    #parray message
 
     ::syslogterp::syslog message
     update
