@@ -62,3 +62,14 @@ save - "save" the current drop/require configuration
     The server doesn't provide any storage currently, so save just emits
     a load command that you can copy and then past back into this thing
     next time you connect and it should be set up the way it was before.
+
+
+Since there is no authentication, connections are required to come from 
+127.0.0.1.
+
+Since it is a safe interpreter, theoretically even maliciously crafted
+code could not gain a toehold to take over your system.  It could easily
+do denial of service to other tclsyslogd code by doing an infinite loop
+or whatever -- the resource limiting capabilities of "interp limit"
+should be explored to make denial of serivce even less likely.  Mostly,
+though, don't let just anybody connect to your syslog smartsockets.

@@ -38,7 +38,12 @@ proc accept_connection {sock ip port} {
     variable sockets
     variable slaveCodeBase
 
+    if {$ip != "127.0.0.1"} {
+        return
+    }
+
     log "accept connection socket $sock, ip $ip, port $port"
+
     fconfigure $sock -blocking 0 -translation auto -buffering line
     fileevent $sock readable [list ::syslogterp::remote_receive $sock]
 
