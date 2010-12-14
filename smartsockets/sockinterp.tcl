@@ -8,6 +8,7 @@ namespace eval ::syslogterp {
     variable sockets
     variable serverPort
     variable serverSock
+    variable slaveCodeBase
 
     set serverPort 23456
 
@@ -20,7 +21,14 @@ proc log {message} {
 proc setup_server {} {
     variable serverPort
     variable serverSock
+    variable slaveCodeBase
+
     set serverSock [socket -server ::syslogterp::accept_connection $serverPort]
+
+    # load the slave code base
+    set fp [open dropper.tcl]
+    set slaveCodeBase [read $fp]
+    close $fp
 }
 
 #
@@ -28,18 +36,14 @@ proc setup_server {} {
 #
 proc accept_connection {sock ip port} {
     variable sockets
+    variable slaveCodeBase
 
     log "accept connection socket $sock, ip $ip, port $port"
     fconfigure $sock -blocking 0 -translation auto -buffering line
     fileevent $sock readable [list ::syslogterp::remote_receive $sock]
 
     set sockets($sock) [interp create -safe]
-    $sockets($sock) eval {
-        proc syslog {_message} {
-	    upvar $_message message
-	    puts [list l [array get message]]
-	}
-    }
+    $sockets($sock) eval $slaveCodeBase
 
     # alias "quit" in the slave interpreter to invoke remote_disconnect here
     $sockets($sock) alias quit ::syslogterp::remote_disconnect $sock
