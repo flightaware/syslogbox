@@ -14,10 +14,6 @@ proc syslog {_message} {
     update
 }
 
-proc tick {} {
-    update
-}
-
 puts "sockinterp loaded"
 
 
