@@ -30,49 +30,69 @@ proc accept_connection {sock ip port} {
     variable sockets
 
     log "accept connection socket $sock, ip $ip, port $port"
-    fconfigure $sock -blocking 0 -translation auto
+    fconfigure $sock -blocking 0 -translation auto -buffering line
     fileevent $sock readable [list ::syslogterp::remote_receive $sock]
 
     set sockets($sock) [interp create -safe]
     $sockets($sock) eval {
-        proc syslog {message} {
+        proc syslog {_message} {
 	    upvar $_message message
-	    puts [list [l [array get message]]]
+	    puts [list l [array get message]]
 	}
     }
 
     # alias "quit" in the slave interpreter to invoke remote_disconnect here
     $sockets($sock) alias quit ::syslogterp::remote_disconnect $sock
+    $sockets($sock) alias puts ::syslogterp::slave_puts $sock
     $sockets($sock) alias test ::syslogterp::test_syslog
 
     puts $sock "syslogterp 1.0"
 }
 
 proc syslog {_array} {
+    log "syslog"
     variable sockets
 
     upvar $_array array
 
+    log "syslog called, array contains '[array get array]'"
+
     set command "unset -nocomplain ::message; array set ::message [list [array get array]]; syslog ::message"
 
-    foreach sock $sockets {
-        if {[catch {$socket($sock) eval $command} catchResult] == 1} {
-	    log "got '$catchResult' executing '$command' in sock $sock"
+    log "syslog command is '$command'"
+
+    foreach sock [array names sockets] {
+        log "sending command to sock $sock"
+        if {[catch {$sockets($sock) eval $command} catchResult] == 1} {
+	    log "got '$catchResult' executing command in sock $sock"
 	}
     }
 }
 
 proc test_syslog {} {
+    log "test_syslog invoked"
     set message(foo) testfoo
     set message(bar) testbar
 
+    log "invoking syslog with message [array get message]"
     syslog message
 }
 
+#
+# remote_disconnect - proc invoked by "quit" in the slave to disconnect
+#
 proc remote_disconnect {sock} {
     log "remote disconnect from $sock"
     puts $sock [list r [list]]
     disconnect $sock
+}
+
+#
+# remote_disconnect - proc invoked by "quit" in the slave to disconnect
+#
+proc slave_puts {sock line} {
+    log "slave_puts $sock $line"
+    puts $sock $line
 }
 
 #
@@ -129,11 +149,6 @@ proc remote_receive {sock} {
     flush $sock
     return
 }
-
-proc syslog {_array} {
-    upvar $_array array
-}
-
 
 } ; # namespace syslogterp
 
