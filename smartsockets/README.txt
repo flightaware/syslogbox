@@ -63,6 +63,9 @@ save - "save" the current drop/require configuration
     a load command that you can copy and then past back into this thing
     next time you connect and it should be set up the way it was before.
 
+stop - stop forwarding log messages
+
+start - start forwarding log messages
 
 Since there is no authentication, connections are required to come from 
 127.0.0.1.
