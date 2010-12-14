@@ -56,6 +56,13 @@ require - require messages to match a certain pattern
     This is a good way to cut right through the noise and focus on a 
     specific host, program, facility or priority, etc.
 
+unrequire - reverse the effect of a previous "require"
+
+    example:
+
+	unrequre program balancer
+
+    Undoes a previous "require", making the selector less selective.
 
 save - "save" the current drop/require configuration
 
