@@ -66,6 +66,7 @@ proc syslog {_array} {
         if {[catch {$sockets($sock) eval $command} catchResult] == 1} {
 	    log "got '$catchResult' executing command in sock $sock"
 	}
+	update
     }
 }
 
@@ -152,5 +153,3 @@ proc remote_receive {sock} {
 
 } ; # namespace syslogterp
 
-::syslogterp::setup_server
-vwait dieZ
