@@ -35,10 +35,38 @@ proc accept_connection {sock ip port} {
 
     set sockets($sock) [interp create -safe]
     $sockets($sock) eval {
-        proc syslog {arrayName} {}
+        proc syslog {message} {
+	    upvar $_message message
+	    puts [list [l [array get message]]]
+	}
     }
+
+    # alias "quit" in the slave interpreter to invoke remote_disconnect here
     $sockets($sock) alias quit ::syslogterp::remote_disconnect $sock
+    $sockets($sock) alias test ::syslogterp::test_syslog
+
     puts $sock "syslogterp 1.0"
+}
+
+proc syslog {_array} {
+    variable sockets
+
+    upvar $_array array
+
+    set command "unset -nocomplain ::message; array set ::message [list [array get array]]; syslog ::message"
+
+    foreach sock $sockets {
+        if {[catch {$socket($sock) eval $command} catchResult] == 1} {
+	    log "got '$catchResult' executing '$command' in sock $sock"
+	}
+    }
+}
+
+proc test_syslog {} {
+    set message(foo) testfoo
+    set message(bar) testbar
+
+    syslog message
 }
 
 proc remote_disconnect {sock} {
@@ -100,6 +128,10 @@ proc remote_receive {sock} {
     }
     flush $sock
     return
+}
+
+proc syslog {_array} {
+    upvar $_array array
 }
 
 
