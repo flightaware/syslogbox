@@ -56,6 +56,13 @@ require - require messages to match a certain pattern
     This is a good way to cut right through the noise and focus on a 
     specific host, program, facility or priority, etc.
 
+unrequire - reverse the effect of a previous "require"
+
+    example:
+
+	unrequre program balancer
+
+    Undoes a previous "require", making the selector less selective.
 
 save - "save" the current drop/require configuration
 
@@ -63,6 +70,9 @@ save - "save" the current drop/require configuration
     a load command that you can copy and then past back into this thing
     next time you connect and it should be set up the way it was before.
 
+stop - stop forwarding log messages
+
+start - start forwarding log messages
 
 Since there is no authentication, connections are required to come from 
 127.0.0.1.
