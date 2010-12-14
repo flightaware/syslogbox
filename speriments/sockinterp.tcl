@@ -37,7 +37,14 @@ proc accept_connection {sock ip port} {
     $sockets($sock) eval {
         proc syslog {arrayName} {}
     }
+    $sockets($sock) alias quit ::syslogterp::remote_disconnect $sock
     puts $sock "syslogterp 1.0"
+}
+
+proc remote_disconnect {sock} {
+    log "remote disconnect from $sock"
+    puts $sock [list r [list]]
+    disconnect $sock
 }
 
 #
@@ -48,8 +55,14 @@ proc handle_eof {sock} {
     variable sockets
 
     log "EOF from socket $sock"
+    disconnect $sock
+}
+
+proc disconnect {sock} {
+    variable sockets
+
     catch {close $sock}
-    interp destroy $sockets($sock)
+    interp delete $sockets($sock)
     unset sockets($sock)
 }
 
@@ -61,6 +74,7 @@ proc remote_receive {sock} {
 
     if {[eof $sock]} {
         handle_eof $sock
+	return
     }
 
     if {[gets $sock line] < 0} {
@@ -74,9 +88,13 @@ proc remote_receive {sock} {
 
     log "got '$line' from $sock"
     if {[catch {$sockets($sock) eval $line} catchResult] == 1} {
-        log [list e $catchResult]
-        puts $sock [list e $catchResult]
+        log [list e $catchResult $::errorInfo]
+        puts $sock [list e $catchResult $::errorInfo]
     } else {
+        # if there is no socket, they disconnected
+        if {![info exists sockets($sock)]} {
+	    return
+	}
         log [list r $catchResult]
         puts $sock [list r $catchResult]
     }
