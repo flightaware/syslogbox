@@ -67,7 +67,7 @@ proc syslog {_array} {
 
     upvar $_array array
 
-    log "syslog called, array contains '[array get array]'"
+    #log "syslog called, array contains '[array get array]'"
 
     set command "unset -nocomplain ::message; array set ::message [list [array get array]]; syslog ::message"
 
