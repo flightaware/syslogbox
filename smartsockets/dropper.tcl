@@ -23,17 +23,15 @@ proc syslog {_message} {
         return ""
     }
 
+    set string "$message(clock) / [string trim $message(timestamp)] / $message(host) / $message(program) / $message(priority) / $message(facility)"
+    unset message(clock) message(timestamp) message(host) message(program) message(priority) message(facility)
+
     set string ""
-    foreach key "clock timestamp host program priority facility" {
-	if {![info exists message($key)]} continue
-	append string ", $key: $message($key)"
-	unset message($key)
-    }
     foreach key [lsort [array names message]] {
 	append string ", $key: $message($key)"
     }
 
-    puts "log [string range $string 2 end]"
+    puts "l $string"
 }
 
 #
