@@ -1,7 +1,5 @@
 #
-#
-#
-#
+#  programmable socket interface to syslog based on tclsyslogd
 #
 
 namespace eval ::syslogterp {
@@ -12,9 +10,13 @@ namespace eval ::syslogterp {
 
     set serverPort 23456
 
+#
+# log - log a message
+#
 proc log {message} {
     puts stderr "syslogterp: $message"
 }
+
 #
 # setup_server - setup to receive TCP connections on the server port
 #
